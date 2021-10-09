@@ -1,5 +1,5 @@
 ---
-layout: poets
+layout: thepoets
 ---
 
 <section class="mt-15">
@@ -9,24 +9,16 @@ layout: poets
         <article class="my-8">
             <h2 class="font-bold text-3xl text-gray-900 mb-2">
                 <a href="{{ post.url | url }}">
-                    {% if post.data.poetname %}
-                        {{ post.data.poetname }}
+                    {% if post.data.title %}
+                        {{ post.data.title }}
                     {% else %}
-                        Untitled
+                        Anonymous
                     {% endif %}
                 </a>
             </h2>
-            <p class="text-base leading-6 text-gray-500 mb-3">
-                <time>
-                    {{ post.date | readableDate }}
-                    by
-                    <a>{{ post.data.author }}</a>
-
-                </time>
-            </p>
-            {% if post.data.description %}
+            {% if post.data.poetbio %}
                 <p class="text-lg text-gray-500 mb-3">
-                    {{ post.data.description }}
+                    {{ post.data.poetbio }}
                 </p>
             {% endif %}
 
