@@ -1,10 +1,10 @@
 backend:
   # Use netlify identity as backend
-  # name: git-gateway
-  # branch: master
+  name: git-gateway
+  branch: main
   ### enable below lines for github integration ###
-  name: github
-  repo: auutstudio/app-poem
+  # name: github
+  # repo: auutstudio/app-poem
 media_folder: "src/static/img"
 public_folder: "/static/img"
 
@@ -16,6 +16,7 @@ collections:
     name: "poets"
     folder: "src/poets"
     create: true
+    slug: "{{slug}}"
     editor:
       preview: false
     fields:
