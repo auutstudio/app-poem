@@ -28,20 +28,21 @@ collections:
     name: "poems"
     identifier_field: id
     folder: "src/poems"
+    format: json
+    slug: "{{author}}-{{id}}"
     create: true
     editor:
       preview: false
     fields:
-      
       - { label: "ID", name: "id", widget: "number", value_type: "int", min: 1, required: true }
-      - { label: "Address", name: "address", widget: "string", required: false }
-      - { label: "Lat", name: "lat", widget: "number", value_type: "float" }
-      - { label: "Long", name: "lng", widget: "number", value_type: "float" }
       - { label: "Author", name: "author", widget: "string" }
       - { label: "Author Page", name: "goto", widget: "string", required: false }
       - { label: "Publish Year", name: "date", widget: "number", required: false }
       - { label: "Title", name: "title", widget: "string", required: false }
       - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Address", name: "address", widget: "string", required: false }
+      - { label: "Lat", name: "lat", widget: "number", value_type: "float" }
+      - { label: "Long", name: "lng", widget: "number", value_type: "float" }
       - { label: "Icon", name: "color", widget: "string", required: false }
       - { label: "Scroll?", name: "scroll", widget: "boolean", required: false }
       - widget: select
