@@ -19,7 +19,7 @@ collections:
     editor:
       preview: false
     fields:
-      - { label: "Name", name: "poetname", widget: "string" }
+      - { label: "Name", name: "title", widget: "string" }
       - { label: "Website", name: "poetsite", widget: "string", required: false }
       - { label: "Bio", name: "poetbio", widget: "markdown", required: false }
       - { label: "Image", name: "psrc", widget: "image", required: false }
