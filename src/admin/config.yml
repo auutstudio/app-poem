@@ -39,12 +39,13 @@ collections:
       - { label: "Author Page", name: "goto", widget: "string", required: false }
       - { label: "Publish Year", name: "date", widget: "number", required: false }
       - { label: "Icon", name: "color", widget: "string", required: false }
-      - { label: "Body", name: "body", widget: "markdown", required: false }
-      - { label: "Scroll?", name: "scroll", widget: "boolean" }
+      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Scroll?", name: "scroll", widget: "boolean", required: false }
       - widget: select
         label: "tags"
         name: "tags"
         multiple: true
+        required: false
         create: true
         options: ["Tags", "created", "from", "config.yml"]
   - label: "Settings"
