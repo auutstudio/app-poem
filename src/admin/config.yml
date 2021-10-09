@@ -1,10 +1,10 @@
 backend:
   # Use netlify identity as backend
-  name: git-gateway
-  branch: master
+  # name: git-gateway
+  # branch: master
   ### enable below lines for github integration ###
-  # name: github
-  # repo: surjithctly/neat-starter
+  name: github
+  repo: auutstudio/neat-starter
 media_folder: "src/static/img"
 public_folder: "/static/img"
 
@@ -12,17 +12,33 @@ public_folder: "/static/img"
 local_backend: true
 # publish_mode: editorial_workflow
 collections:
-  - label: "Blog"
-    name: "blog"
-    folder: "src/posts"
+  - label: "Poets"
+    name: "poets"
+    folder: "src/poets"
+    create: true
+    editor:
+      preview: false
+    fields:
+      - { label: "Name", name: "poetname", widget: "string" }
+      - { label: "Website", name: "poetsite", widget: "string" }
+      - { label: "Bio", name: "poetbio", widget: "markdown" }
+      - { label: "Image", name: "psrc", widget: "string" }
+  - label: "Poems"
+    name: "poems"
+    folder: "src/poems"
     create: true
     editor:
       preview: false
     fields:
       - { label: "Title", name: "title", widget: "string" }
-      - { label: "Description", name: "description", widget: "string" }
+      - { label: "Address", name: "address", widget: "string" }
+      - { label: "Lat", name: "lat", widget: "number" }
+      - { label: "Long", name: "lng", widget: "number" }
       - { label: "Author", name: "author", widget: "string" }
-      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "Author Page", name: "plink", widget: "string" }
+      - { label: "Publish Year", name: "date", widget: "number" }
+      - { label: "Icon", name: "color", widget: "string" }
+      - { label: "Scrollable", name: "scroll", widget: "string" }
       - { label: "Body", name: "body", widget: "markdown" }
       - widget: select
         label: "tags"

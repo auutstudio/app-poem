@@ -1,16 +1,16 @@
 ---
-layout: blog
+layout: poets
 ---
 
 <section class="mt-15">
-    {% set postslist = collections.post %}
+    {% set postslist = collections.poets %}
 
     {% for post in postslist | reverse %}
         <article class="my-8">
             <h2 class="font-bold text-3xl text-gray-900 mb-2">
                 <a href="{{ post.url | url }}">
-                    {% if post.data.title %}
-                        {{ post.data.title }}
+                    {% if post.data.poetname %}
+                        {{ post.data.poetname }}
                     {% else %}
                         Untitled
                     {% endif %}
