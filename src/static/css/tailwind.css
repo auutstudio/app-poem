@@ -372,10 +372,10 @@ body pre[class*="language-"] {
 @media screen and (max-width: 400px) {
   #page { margin-top: -80px; }
   #right { top: 64px; }
-  .sidebar { height: 80%; }
+  .sidebar { height: 78%; }
   
 }
-/* iPhone 5SE */
+/* special case: iPhone 5SE */
 @media screen and (max-width: 400px) and (max-height: 570px) { 
 }
 
