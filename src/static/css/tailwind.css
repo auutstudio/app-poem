@@ -372,7 +372,7 @@ body pre[class*="language-"] {
 @media screen and (max-width: 400px) {
   #page { margin-top: -80px; }
   #right { top: 64px; }
-  .sidebar { height: 84%; }
+  .sidebar { height: 80%; }
   
 }
 /* iPhone 5SE */
@@ -380,7 +380,7 @@ body pre[class*="language-"] {
 }
 
 @media screen and (max-width: 469px) {
-  #app-container { width: 93%; }
+  /* #app-container { width: 93%; } */
   #default_text { margin-top: 80px; font-size: 1.5em; }
   .flex-center.right { right: -16px; }
   .shadow,
