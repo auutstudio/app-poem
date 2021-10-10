@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+      {{title}}
+    </title>
+    {% if description %}
+      <meta name="description" content="{{description}}"/>
+    {% endif %}
+    {% block head %}{% endblock %}
+    <script src="/static/js/mapbox-gl.js"></script>
+    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.2/mapbox-gl.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css"/>
+    {% if prism == true %}
+      <link rel="stylesheet" type="text/css" href="/static/css/prism-tomorrow.css">
+    {% endif %}
+  </head>
+  <body>
+
+    {% include "./partials/navbar.html" %}
+
+    <div id="page">
+      <div id="app-container">
+        <div id='before' class='map'>
+          <div class="credits-container">
+              <a href="https://findauut.com/mappak/" target="_blank"><i>by @findauut</i></a>
+          </div>
+          <div id="right" class="sidebar flex-center right collapsed">
+              <div class="sidebar-content rounded-rect flex-center">
+                <div id="poem-container"><div id='default_text'>Drag the map to discover a poem hiding in plain sight in San Francisco</div></div>
+                <div class="sidebar-toggle rounded-rect right" onclick="toggleSidebar('right')">«</div>
+              </div>
+          </div>
+        </div>
+        <div id='keyhole_view' class='after-container'>
+          <div id='after' class='map'></div>
+        </div>    
+        <div id='keyhole' class='shadow'></div>
+      </div>  <!-- end app-container -->
+    </div>
+
+    {% include "./partials/footer.html" %}
+
+    <script src="/static/js/alpine.js"></script>
+
+    <script>
+      mapboxgl.accessToken = "pk.eyJ1IjoibWFwdHNpdGUiLCJhIjoiY2t1ajIwcDZ4MnUwczJvazY3M2lpOGNuayJ9.ZXhR1ue6vIYp1hvpec3-_A";
+var dirAssets      = "/static/img/",
+    clientStyle2   = "mapbox://styles/maptsite/ckuj24ljq7vtw18qxwb4feikl",
+    clientStyle1   = "mapbox://styles/maptsite/ckuj1r4n6ft9k19qj6s05a6fn",
+    descrDefault   = "<div id='default_text'>Drag the map to discover a poem hiding in plain sight in San Francisco</div>",
+    iconDefault    = dirAssets+'cyan-mark.png',
+    clientCenter   = [ -122.44172, 37.74806 ], 
+    clientZoom     = 11.5,
+    clientPitch    = 0,
+    clientMinZ     = 11,
+    clientMaxZ     = 13,
+    clientMaxB     = [[-123,37.55],[-122.1,37.9]],
+    clientDelayMs  = 1000,//ms; Matched to CSS .sidebar transition duration
+    poemPadding    = 300, //px, Matched to CSS .sidebar, .after-container.right, .right.collapsed 
+    magnOffset     = 0.8,
+    magnCtrOffset  = 0, //-0.035,
+    isOnMobile     = true;
+
+checkScreenSize();
+
+function toggleSidebar(id, statepos, scrollable) {
+  const keyhole       = document.getElementById('keyhole');
+  const keyhole_view  = document.getElementById('keyhole_view');
+  const elem          = document.getElementById(id);
+  
+  //if already open
+  if (statepos == 'open' && keyhole.classList.contains('right') ) { 
+      document.getElementById('poem-container').scrollTop = 0;
+      elem.classList.remove('scrollme');
+      if (isOnMobile || scrollable=='true') {  elem.classList.add('scrollme');  }
+  } else {
+    const collapsed  = elem.classList.toggle('collapsed');
+    const padding    = {};
+    
+    if (isOnMobile || scrollable=='true') {  elem.classList.add('scrollme');  }
+
+    // When run at start, this object looks like: '{right: 400}'
+    padding[id] = collapsed ? 0 : poemPadding;
+
+    // Adjust the maps' center accounting for the position of sidebar 
+    beforeMap.easeTo({  padding: padding, duration: clientDelayMs });
+    keyhole.classList.toggle('right');
+    keyhole_view.classList.toggle('right');
+  
+    if (padding[id] == 0) {
+      
+      var delayReset = setTimeout(function() { 
+        document.getElementById('poem-container').scrollTop = 0;
+        elem.classList.remove('scrollme');
+        document.getElementById('poem-container').innerHTML = descrDefault;       
+      }, clientDelayMs);
+    }
+  }
+ 
+}
+
+function checkScreenSize () {
+  var FrameWidth = window.innerWidth;
+  if (FrameWidth >= 470) { 
+    isOnMobile     = false;
+    clientPitch    = 20;
+    poemPadding    = 400; 
+    // magnCtrOffset  = 0.03;
+  }
+}
+
+// Magifying Glass effect by Tim Welch: 
+// https://bl.ocks.org/twelch/d1c57227e75262b4caad556a39335702
+function moveToMapPosition (master, clones) {
+        var center = master.getCenter();
+        var zoom = master.getZoom();
+        var bearing = master.getBearing();
+        var pitch = master.getPitch();
+
+        clones.forEach(function (clone) {
+          clone.jumpTo({
+            center: [center.lng, center.lat+magnCtrOffset ],
+            zoom: zoom+magnOffset,
+            bearing: bearing,
+            pitch: pitch
+          });
+        });
+      }
+
+      // Sync movements of two maps.
+      //
+      // All interactions that result in movement end up firing a "move" event. The trick here, though, is to
+      // ensure that movements don't cycle from one map to the other and back again, because such a cycle
+      // - could cause an infinite loop
+      // - prematurely halts prolonged movements like double-click zooming, box-zooming, and flying
+      function syncMaps () {
+        var maps;
+        var argLen = arguments.length;
+        if (argLen === 1) {
+          maps = arguments[0];
+        } else {
+          maps = [];
+          for (var i = 0; i < argLen; i++) {
+            maps.push(arguments[i]);
+          }
+        }
+        // Create all the movement functions, because if they're created every time
+        // they wouldn't be the same and couldn't be removed.
+        var fns = [];
+        maps.forEach(function (map, index) {
+          fns[index] = sync.bind(null, map, maps.filter(function (o, i) { return i !== index; }));
+        });
+
+        function on () {
+          maps.forEach(function (map, index) {
+            map.on('move', fns[index]);
+          });
+        }
+
+        function off () {
+          maps.forEach(function (map, index) {
+            map.off('move', fns[index]);
+          });
+        }
+
+        // When one map moves, we turn off the movement listeners
+        // on all the maps, move it, then turn the listeners on again
+        function sync (master, clones) {
+          off();
+          moveToMapPosition(master, clones);
+          on();
+        }
+
+        on();
+      }
+
+      function Compare(a, b, options) {
+        this.options = options ? options : {};
+        this._onDown = this._onDown.bind(this);
+        this._onMove = this._onMove.bind(this);
+        this._onMouseUp = this._onMouseUp.bind(this);
+        this._onTouchEnd = this._onTouchEnd.bind(this);
+
+        this._swiper = document.createElement('div');
+        this._swiper.className = 'compare-swiper';
+
+        this._container = document.createElement('div');
+        this._container.className = 'mapboxgl-compare';
+        this._container.appendChild(this._swiper);
+
+        a.getContainer().appendChild(this._container);
+
+        this._clippedMap = b;
+        this._bounds = b.getContainer().getBoundingClientRect();
+      //  this._setPosition(this._bounds.width / 2);
+        syncMaps(a, b);
+
+      /*   b.on('resize', function() {
+          this._bounds = b.getContainer().getBoundingClientRect();
+          if (this._x) this._setPosition(this._x);
+        }.bind(this)); */
+
+        if (this.options && this.options.mousemove) {
+          a.getContainer().addEventListener('mousemove', this._onMove);
+          b.getContainer().addEventListener('mousemove', this._onMove);
+        }
+
+        this._swiper.addEventListener('mousedown', this._onDown);
+        this._swiper.addEventListener('touchstart', this._onDown);
+      }
+
+      Compare.prototype = {
+        _setPointerEvents: function(v) {
+          this._container.style.pointerEvents = v;
+          this._swiper.style.pointerEvents = v;
+        },
+
+        _onDown: function(e) {
+          if (e.touches) {
+            document.addEventListener('touchmove', this._onMove);
+            document.addEventListener('touchend', this._onTouchEnd);
+          } else {
+            document.addEventListener('mousemove', this._onMove);
+            document.addEventListener('mouseup', this._onMouseUp);
+          }
+        },
+
+        _setPosition: function(x) {
+          var pos = 'translate(' + x + 'px, 0)';
+          this._container.style.transform = pos;
+          this._container.style.WebkitTransform = pos;
+          this._clippedMap.getContainer().style.clip = 'rect(0, 999em, ' + this._bounds.height + 'px,' + x + 'px)';
+          this._x = x;
+        },
+
+        _onMove: function(e) {
+          if (this.options && this.options.mousemove) {
+            this._setPointerEvents(e.touches ? 'auto' : 'none');
+          }
+
+          this._setPosition(this._getX(e));
+        },
+
+        _onMouseUp: function() {
+          document.removeEventListener('mousemove', this._onMove);
+          document.removeEventListener('mouseup', this._onMouseUp);
+        },
+
+        _onTouchEnd: function() {
+          document.removeEventListener('touchmove', this._onMove);
+          document.removeEventListener('touchend', this._onTouchEnd);
+        },
+
+        _getX: function(e) {
+          e = e.touches ? e.touches[0] : e;
+          var x = e.clientX - this._bounds.left;
+          if (x < 0) x = 0;
+          if (x > this._bounds.width) x = this._bounds.width;
+          return x;
+        }
+      };
+
+      mapboxgl.Compare = Compare;
+
+
+
+
+// -----------------------------//
+//
+// MAP MARKERS:
+//
+var iconSuffix = ['-mark','-pin','-flag'];
+var iconOrange = [], iconRed = [], iconPink = [], iconPurple = [], iconLime = [], iconGreen = [], iconBlue = [], iconCyan = [];
+
+iconSuffix.forEach(function(suff, i) {
+  iconOrange[i] = dirAssets+'orange'+suff+'.png';
+  iconRed[i]    = dirAssets+'red'+suff+'.png';
+  iconPink[i]   = dirAssets+'pink'+suff+'.png';
+  iconPurple[i] = dirAssets+'purple'+suff+'.png';
+  iconLime[i]   = dirAssets+'lime'+suff+'.png';
+  iconGreen[i]  = dirAssets+'green'+suff+'.png';
+  iconBlue[i]   = dirAssets+'blue'+suff+'.png';
+  iconCyan[i]   = dirAssets+'cyan'+suff+'.png';
+});
+
+
+// -----------------------------//
+//
+// INITIALIZE MAPT:
+//
+
+var isTouch =  !!("ontouchstart" in window) || window.navigator.msMaxTouchPoints > 0;
+var eventPopup;
+var beforeMap = new mapboxgl.Map({
+        container: 'before',
+        style: clientStyle1,
+        center: clientCenter,
+        minZoom: clientMinZ,
+        maxZoom: clientMaxZ,
+        zoom: clientZoom,
+        pitch: clientPitch,
+        attributionControl: true,
+        logoPosition: 'bottom-left',
+        dragRotate: false,
+        renderWorldCopies: false,
+        maxBounds: clientMaxB
+        });
+    beforeMap.addControl(new mapboxgl.NavigationControl({showCompass: false }),"top-left");
+
+
+var afterMap = new mapboxgl.Map({
+        container: 'after',
+        style: clientStyle2,
+        center: [ clientCenter[0], clientCenter[1]+magnCtrOffset ],
+        minZoom: clientMinZ+magnOffset,
+        maxZoom: clientMaxZ+magnOffset,          
+        zoom: clientZoom+magnOffset,
+        pitch: clientPitch,
+        dragRotate: false,
+        maxBounds: clientMaxB
+    });
+    //afterMap.dragPan.disable();
+    afterMap.scrollZoom.disable();
+    afterMap.doubleClickZoom.disable();
+    afterMap.getCanvas().style.cursor = "crosshair";
+      
+var map = new mapboxgl.Compare(beforeMap, afterMap, {
+    // Set this to enable comparing two maps by mouse movement:
+    // mousemove: true
+});
+
+afterMap.loadImage(iconDefault, function(error, image) {
+      if (error) throw error;
+      afterMap.addImage('default', image);
+    });
+
+iconSuffix[0] = '';
+iconSuffix.forEach(function(suff, i) {
+    afterMap.loadImage(iconOrange[i], function(error, image) {
+      if (error) throw error;
+      afterMap.addImage('orange'+suff, image);
+    });
+    afterMap.loadImage(iconRed[i], function(error, image) {
+      if (error) throw error;
+      afterMap.addImage('red'+suff, image);
+    });
+    afterMap.loadImage(iconPink[i], function(error, image) {
+      if (error) throw error;
+      afterMap.addImage('pink'+suff, image);
+    });
+    afterMap.loadImage(iconPurple[i], function(error, image) {
+      if (error) throw error;
+      afterMap.addImage('purple'+suff, image);
+    });
+    afterMap.loadImage(iconLime[i], function(error, image) {
+      if (error) throw error;
+      afterMap.addImage('lime'+suff, image);
+    });
+    afterMap.loadImage(iconGreen[i], function(error, image) {
+      if (error) throw error;
+      afterMap.addImage('green'+suff, image);
+    });
+    afterMap.loadImage(iconBlue[i], function(error, image) {
+      if (error) throw error;
+      afterMap.addImage('blue'+suff, image);
+    });
+    afterMap.loadImage(iconCyan[i], function(error, image) {
+      if (error) throw error;
+      afterMap.addImage('cyan'+suff, image);
+    });
+
+});
+
+
+
+// // ///////////////// LOAD DATA //////////////////////////
+afterMap.on("load", mapt_load);
+
+function mapt_load() {
+
+    checkScreenSize();
+    afterMap.addSource('old_data', {
+            'type': 'geojson',
+            'data': {
+                'type': 'FeatureCollection',
+                'features': [
+                {"type":"Feature","properties":{"id":"1","addr":"","year":0,"poet":"Kim Shuck","psrc":"","scroll":"false","title":"","poem":"Catchment for myth for<br>Truncated history<br>Stickleback<br>Western pond turtles<br>Tend the water<br>The invisible creeks<br> Coming home<br>Coming up<br>Can hear the echoes from MacArthur tunnel<br>The aerators in the water<br>From this bench<br>50 some years in this city and I've never seen a bat here<br>Was that a bat?<br>Bug catching over the lake<br>Tend the water<br>Raise the water<br>And you may see the old things<br>Come again","color":"pink-flag","src":"http://mapt.site/a/portal/example/wp-content/uploads/sites/2/2021/03/yvo_2014.jpg"},"geometry":{"coordinates":[-122.4710, 37.7873],"type":"Point"}},
+
+                {"type":"Feature","properties":{"id":"2","addr":"","year":0,"poet":"Diana L. Lang","psrc":"","scroll":"false","title":"Right Here (Pier 39)","poem":"Wandering the city of my dreams,<br>with my grandfather’s spirit in my mind,<br>accompanying me into old fashioned arcades,<br>staring across the bay and sending love to friends who sail it.<br><br>We wander around on this merry go round of love,<br>finding the candy stores of our souls.<br>I dined on a heart attack between buns,<br>I longed for slower times,<br>and I received them.<br><br>The man behind the bush no longer causes me to jump,<br>I gladly ask strangers for photos,<br>I connect with traveling Texans.<br>and a man said, “You’re a steam punk”<br>when here I was thinking of hippies.<br><br>This life is a candy store,<br>but it takes trying new things<br>to figure out what’s sweetest,<br>and sometimes all you find<br>is that the marzipan still ain’t your bag.","color":"pink-flag","src":""},"geometry":{"coordinates":[-122.410003, 37.80912 ],"type":"Point"}},
+
+              {"type":"Feature","properties":{"id":"3","addr":"","year":0,"poet":"Jeff Kaliss","psrc":"","scroll":"true","title":"East, On 24th","poem":"<b><i>prompted by Prof. John Isles at City College of San Francisco: stroll a street</i></b><br><br>homes here politely paint over their age,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and turn it into money.<br><br>a new crop of children regenerates the greened-in playground.<br><br>the afternoon flowers and the leftover pumpkins,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;frowned down on by gray skies.<br><br>gravity pulls me down into the Valley,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and draws raindrops from the overseeing clouds.<br><br>now, in the neighborhood plexus,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my memories begin to shine<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;through the autumnal present.<br><br>hollandaise glistens<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;on the face of some lovely old young flame,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loveliness abides, the waitress at the wine bar,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the bank officer, chumming with her tellers.<br><br>here were coffeehouses<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where we scribbled in our journals towards girls with theirs,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and here were bars<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where we put shots into our courage<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and coins into our anthems.<br><br>after detoured years,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I got married again,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at the church up there,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;catered by neighbors.<br><br>in a short block,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;brouguey Irish publicans on one side,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;goading Greek greengrocer on the other.<br><br>one sweet daughter,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;carried as a babe to the bar &amp; grill there,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toddling later to the cleaners here.<br><br>going on,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;quotidian gravity<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;grabs hold again,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;towards lower anonymous<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;crisscross traffic.<br>I think I’ll have to catch a bus.","color":"pink-flag","src":""},"geometry":{"coordinates":[-122.4085876, 37.75286 ],"type":"Point"}},
+
+              {"type":"Feature","properties":{"id":"4","addr":"","year":2017,"poet":"Lisbit Bailey<br>(17 Nov 2017)","psrc":"","scroll":"true","title":"top of fort point (our strong point)","poem":"we climbed three flights of stairs<br>to the top of fort point<br>the first time for me<br><br>we climbed and<br>we walked<br>we looked and<br>we talked<br>we touched<br>the old bricks<br><br>you told a story<br>of old bricks<br><br>we saw bay and ocean<br>yacht, motor boat and<br>rescue equipment under the bridge<br>to save the unsaved<br><br>we spoke of weaknesses<br>that join us<br>those common feelings of<br>loss, disappointment and desire<br>for something more, better, different<br>some other lot in life<br><br>normal is a sour taste<br>deep in our mouths<br>convention, routine, habit<br>reign as ordinary<br>we cannot live there<br><br>we worry at this sinkhole<br>work constantly to find a way out<br>find a hand to hold<br>a firm footing<br><br>to ascend creatively<br>clears our eyes<br>brings us joy briefly<br>we want to linger","color":"pink-flag","src":""},"geometry":{"coordinates":[-122.427698, 37.807810 ],"type":"Point"}},
+
+              {"type":"Feature","properties":{"id":"5","addr":"","year":0,"poet":"Vincent Calvarese","psrc":"","scroll":"true","title":"","poem":"RESENTMENT OF PROSE EXPLODES,<br>.....down around the corner is 17th Street, avocado toast and eight dollar lattes:<br><br>Where the boys and the 80s weren’t the same anymore with a carefree blue pill and who knew,<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I’d live to be 54 in a studio apartment near Dolores Park because:<br><br>I never smoked crystal meth, yet<br><br>and I never seroconverted, yet.<br><br>And I still don’t have a plan but a languishing condom<br><br>In my back pocket where my comb use to be because follicle-ly challenged I have become And I visit my Mom in assisted living<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; e&nbsp;v&nbsp;e&nbsp;r&nbsp;y<br><br>one, no two or three weeks<br><br>and she asks me if I’ve lost weight<br><br>and I smile instead of….<br><br>Turning a table &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; over &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;because<br><br>A lot of my friends: are dead<br><br>and had been dying or wasted away<br><br>or moved away or relapsed into another world<br><br>where having wine at dinner became an option<br><br>and white-knuckling-it upon waking and eyeing<br><br>5 o’clock p.m. too often……just &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; past &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lunch.<br><br>And the “fruit shelf” has been:<br><br>overrun by cis-gender girls and<br><br>their gender conformingboyfriends,<br><br>who loudly proclaim their love of “diversity”<br><br>through their white spaces, Sephora purchases and littered beer bottles<br><br>and gentrification invades from all sides:<br><br>with my shoulder blades &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stiff<br><br>and my fists &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tight<br><br>clenching my &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;teeth<br><br>and Bi-Rite hits the Square,<br><br>and emails us our receipts….<br><br>…..straight outta the neighborhood","color":"pink-flag","src":""},"geometry":{"coordinates":[-122.4239504, 37.762331 ],"type":"Point"}},
+
+              {"type":"Feature","properties":{"id":"6","addr":"","year":2020,"poet":"Sunnylyn Thibodeaux<br>The World Exactly/Cuneiform Press/2020","psrc":"","scroll":"true","title":"Electric System","poem":"We’ve got King tides<br>and Alice Coltrane sweeping<br>up the mood. It’s Christmas Eve<br>and Japantown is overrun with littered<br>umbrellas and nitro puffs. Safeway smeared <br>with footprints and a Salvation <br>Army Santa playing a recorder <br>with his little red collection bucket. An emergency<br>landing at SFO. Rain is still pouring<br>through a hole in the roof. 94-year-old<br>landlord stopped in yesterday to say hello. <i>Shit</i><br>came out when he saw the gape. <i>Get an estimate</i><br>Rent hasn’t been cashed making the account<br>seem inflated for delight. Santa Tracker<br>is running despite the government’s<br>shutdown over a lack of empathy and an orange<br>man’s temper tantrum. The spirit of giving<br>doesn’t live in everyone. It isn’t supposed to<br>Our shoulders are strong, and we will <br>continue to carry joy into the night <br>across borders of religion and race <br>because that one wish is the persistent hope<br>that we make it to know love in its<br>boundless array of faith. That we make it<br>to know love","color":"pink-flag","src":""},"geometry":{"coordinates":[-122.430108, 37.78521 ],"type":"Point"}},
+
+              {"type":"Feature","properties":{"id":"7","addr":"","year":0,"poet":"Shizue Seigel","psrc":"","scroll":"true","title":"Stubborn weeds","poem":"In my neighborhood of stubborn weeds<br>I hope that COVID came just in time to save; us<br>from total eradication, preserving the last of the grit<br>from million-dollar scrubs of virgin<br>olive oil, oatmeal and sage consumed by the pampered few who<br>can afford to bathe their skins with what lesser folk can eat.<br>Will the virus slow them down<br>like the bursting of dot.com 1<br>or the ’89 earthquake?<br>Coastal fog used to be sufficient<br>to keep away those who did not love this land<br>the fragile interface with sea and <br>sky sometimes unseen all summer long.<br>Shrouded by fog tendrils, microdroplets<br>bursting against our cheeks, reminding us<br>like warning blasts and mourning bleats<br>signaling ships at sea and landlubbers alike<br>that we are all adrift on life—reality rising and falling<br>heaving and lulling, by turns.<br>There are no guarantees, <br>only the invitation to risk.<br>We are a hardy people<br>buckwheat and sorrel<br>dandelions and succulents.<br>Look down your nose at us,<br>indulge yourself elsewhere<br>with showy blooms and gourmet grazings.<br>We are a plain people whose meager dollars<br>sent a generation to college so<br>they could look down at us, too.<br>Now they are learning something priceless:<br>there are no guarantees except<br>death comes to all of us.<br>Life comes from how you<br>meet it.","color":"pink-flag","src":""},"geometry":{"coordinates":[-122.508873, 37.779941 ],"type":"Point"}}
+                ]} 
+      });
+      afterMap.addLayer({
+        id: 'layer_poems',
+        type: 'symbol',
+        source: 'old_data',
+        layout: { 
+          'visibility': 'visible',
+          'icon-image': ['get', 'color' ],
+          'icon-size': [
+                    "interpolate", ["linear"], ["zoom"],
+                    clientMinZ+magnOffset, 0.2,
+                    clientMaxZ+magnOffset, 0.5
+                    ],
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': true,
+        }
+      });
+      afterMap.on("click", "layer_poems", function (e) {
+          var description = inscribePoem(e.features[0]);
+          document.getElementById('poem-container').innerHTML = description;
+          toggleSidebar('right', 'open', e.features[0].properties.scroll );
+      });
+      afterMap.on("mouseenter", "layer_poems", function () { 
+        afterMap.getCanvas().style.cursor = "pointer"; 
+      });
+      afterMap.on("mouseleave", "layer_poems", function () { 
+        afterMap.getCanvas().style.cursor = "crosshair"; 
+      });
+}
+
+
+function inscribePoem (fields) {
+    return (
+      ( typeof fields.properties.addr !== "undefined" && fields.properties.addr !== "" ? "<h5>" + fields.properties.addr + "<\/h5>" : "" )
+    + ( typeof fields.properties.title !== "undefined" && fields.properties.title !== "" ? "<h2>" + fields.properties.title + "<\/h2>" : "" )
+    + ( typeof fields.properties.poem !== "undefined" && fields.properties.poem !== ""  ? "<p>" + fields.properties.poem + "<\/p>" : "" )
+    + ( typeof fields.properties.poet !== "undefined" && fields.properties.poet !== ""  ? "<p class='byline'>—" + fields.properties.poet + "<\/p>" : "" )
+    //+ ( typeof fields.properties.src !== "undefined" && fields.properties.src !== ""  ? "<img src='" + fields.properties.src + "'>" : "" )
+    
+    );
+}
+    </script>
+
+  </body>
+</html>

@@ -1,8 +1,8 @@
 ---
 links:
   - title: View the Map
-    url: "https://findauut.com/"
+    url: "/map/"
     desc: Lorem ipsum dolor salit
   - title: Meet the Poets
-    url: "the-poets/"
+    url: "/the-poets/"
     desc: Lorem ipsum dolor salit.
