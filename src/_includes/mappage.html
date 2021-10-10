@@ -399,6 +399,19 @@ afterMap.on("load", mapt_load);
 function mapt_load() {
 
     checkScreenSize();
+
+    if (isOnMobile) {
+      beforeMap.addControl(
+        new mapboxgl.GeolocateControl({
+          positionOptions: { enableHighAccuracy: true },
+          trackUserLocation: true,
+          showUserHeading: true
+        }),
+        "bottom-left"
+      );
+    }
+    
+
     afterMap.addSource('old_data', {
             'type': 'geojson',
             'data': {
