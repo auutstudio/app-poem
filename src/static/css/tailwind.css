@@ -373,7 +373,9 @@ body pre[class*="language-"] {
   #page { margin-top: -80px; }
   #right { top: 64px; }
   .sidebar { height: 78%; }
-  
+  .mapboxgl-ctrl-bottom-left {
+    margin-bottom: 100px;
+  }
 }
 /* special case: iPhone 5SE */
 @media screen and (max-width: 400px) and (max-height: 570px) { 

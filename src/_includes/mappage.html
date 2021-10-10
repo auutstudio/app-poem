@@ -400,7 +400,7 @@ function mapt_load() {
 
     checkScreenSize();
 
-    if (isOnMobile) {
+    //if (isOnMobile) {
       beforeMap.addControl(
         new mapboxgl.GeolocateControl({
           positionOptions: { enableHighAccuracy: true },
@@ -409,7 +409,7 @@ function mapt_load() {
         }),
         "bottom-left"
       );
-    }
+    //}
     
 
     afterMap.addSource('old_data', {
