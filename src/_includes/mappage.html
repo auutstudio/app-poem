@@ -46,7 +46,7 @@
     <script src="/static/js/alpine.js"></script>
 
     <script>
-      mapboxgl.accessToken = "pk.eyJ1IjoibWFwdHNpdGUiLCJhIjoiY2t1ajIwcDZ4MnUwczJvazY3M2lpOGNuayJ9.ZXhR1ue6vIYp1hvpec3-_A";
+mapboxgl.accessToken = "pk.eyJ1IjoibWFwdHNpdGUiLCJhIjoiY2t1ajIwcDZ4MnUwczJvazY3M2lpOGNuayJ9.ZXhR1ue6vIYp1hvpec3-_A";
 var dirAssets      = "/static/img/",
     clientStyle2   = "mapbox://styles/maptsite/ckuj24ljq7vtw18qxwb4feikl",
     clientStyle1   = "mapbox://styles/maptsite/ckuj1r4n6ft9k19qj6s05a6fn",
@@ -54,7 +54,7 @@ var dirAssets      = "/static/img/",
     iconDefault    = dirAssets+'cyan-mark.png',
     clientCenter   = [ -122.44172, 37.74806 ], 
     clientZoom     = 11.5,
-    clientPitch    = 0,
+    clientPitch    = 20,
     clientMinZ     = 11,
     clientMaxZ     = 13,
     clientMaxB     = [[-123,37.55],[-122.1,37.9]],
@@ -62,6 +62,8 @@ var dirAssets      = "/static/img/",
     poemPadding    = 300, //px, Matched to CSS .sidebar, .after-container.right, .right.collapsed 
     magnOffset     = 0.8,
     magnCtrOffset  = 0, //-0.035,
+    detailedPitch  = 50,
+    detailedZoom   = 16.2,
     isOnMobile     = true;
 
 checkScreenSize();
@@ -80,8 +82,24 @@ function toggleSidebar(id, statepos, scrollable) {
     const collapsed  = elem.classList.toggle('collapsed');
     const padding    = {};
     
+    
     if (isOnMobile || scrollable=='true') {  elem.classList.add('scrollme');  }
-
+    if (statepos !== 'open') {
+      var midZoom = (clientMinZ+clientMaxZ)/2;
+      afterMap.flyTo({ 
+        center: afterMap.getCenter(),
+        zoom: midZoom + magnOffset,
+        pitch: clientPitch,
+        speed: 3, 
+        curve: 1.2,
+        easing: function (t) { return t; }
+       });
+      afterMap.fire('move');
+      
+      var delayEnforceZoom = setTimeout(function() { 
+        afterMap.setMaxZoom(clientMaxZ+magnOffset); 
+      }, 800);
+    }
     // When run at start, this object looks like: '{right: 400}'
     padding[id] = collapsed ? 0 : poemPadding;
 
@@ -106,7 +124,7 @@ function checkScreenSize () {
   var FrameWidth = window.innerWidth;
   if (FrameWidth >= 470) { 
     isOnMobile     = false;
-    clientPitch    = 20;
+    clientPitch    = 35;
     poemPadding    = 400; 
     // magnCtrOffset  = 0.03;
   }
@@ -132,9 +150,8 @@ function moveToMapPosition (master, clones) {
 
       // Sync movements of two maps.
       //
-      // All interactions that result in movement end up firing a "move" event. The trick here, though, is to
-      // ensure that movements don't cycle from one map to the other and back again, because such a cycle
-      // - could cause an infinite loop
+      // All interactions that result in movement end up firing a "move" event. The trick here is to
+      // ensure that movements don't cycle from one map to the other in an infinite loop
       // - prematurely halts prolonged movements like double-click zooming, box-zooming, and flying
       function syncMaps () {
         var maps;
@@ -421,6 +438,11 @@ function mapt_load() {
       afterMap.on("click", "layer_poems", function (e) {
           var description = inscribePoem(e.features[0]);
           document.getElementById('poem-container').innerHTML = description;
+          flyme( 
+            e.features[0].geometry.coordinates.slice(), 
+            detailedZoom, 
+            detailedPitch
+            );
           toggleSidebar('right', 'open', e.features[0].properties.scroll );
       });
       afterMap.on("mouseenter", "layer_poems", function () { 
@@ -430,19 +452,40 @@ function mapt_load() {
         afterMap.getCanvas().style.cursor = "crosshair"; 
       });
 }
-
+function flyme (newcenter, newzoom, newpitch) {
+  var animateSpeed = 1.2;
+  if (newzoom > clientMaxZ+magnOffset) { 
+    //clientMaxZ = newzoom; 
+    afterMap.setMaxZoom(newzoom); 
+  }
+  if (typeof(newpitch) !='number' ) { newpitch = clientPitch;  }
+  if (afterMap.getZoom() >= newzoom ) { 
+    newzoom = afterMap.getZoom();
+  }
+  if (newzoom < afterMap.getZoom()) { 
+    animateSpeed = 3;
+  } 
+  afterMap.flyTo({
+            center: newcenter,
+            zoom: newzoom,
+            pitch: newpitch,
+            speed: 2, 
+            curve: animateSpeed,
+            easing: function (t) { return t; }
+        });
+}
 
 function inscribePoem (fields) {
-    return (
-      ( typeof fields.properties.addr !== "undefined" && fields.properties.addr !== "" ? "<h5>" + fields.properties.addr + "<\/h5>" : "" )
-    + ( typeof fields.properties.title !== "undefined" && fields.properties.title !== "" ? "<h2>" + fields.properties.title + "<\/h2>" : "" )
-    + ( typeof fields.properties.poem !== "undefined" && fields.properties.poem !== ""  ? "<p>" + fields.properties.poem + "<\/p>" : "" )
-    + ( typeof fields.properties.poet !== "undefined" && fields.properties.poet !== ""  ? "<p class='byline'>—" + fields.properties.poet + "<\/p>" : "" )
-    //+ ( typeof fields.properties.src !== "undefined" && fields.properties.src !== ""  ? "<img src='" + fields.properties.src + "'>" : "" )
-    
-    );
+  return (
+    ( typeof fields.properties.addr !== "undefined" && fields.properties.addr !== "" ? "<h5>" + fields.properties.addr + "<\/h5>" : "" )
+  + ( typeof fields.properties.title !== "undefined" && fields.properties.title !== "" ? "<h2>" + fields.properties.title + "<\/h2>" : "" )
+  + ( typeof fields.properties.poem !== "undefined" && fields.properties.poem !== ""  ? "<p>" + fields.properties.poem + "<\/p>" : "" )
+  + ( typeof fields.properties.poet !== "undefined" && fields.properties.poet !== ""  ? "<p class='byline'>—" + fields.properties.poet + "<\/p>" : "" )
+  //+ ( typeof fields.properties.src !== "undefined" && fields.properties.src !== ""  ? "<img src='" + fields.properties.src + "'>" : "" )
+  
+  );
 }
-    </script>
+</script>
 
   </body>
 </html>
