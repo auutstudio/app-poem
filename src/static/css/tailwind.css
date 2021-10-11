@@ -160,6 +160,17 @@ button.mapboxgl-ctrl-compass,
 button.mapboxgl-ctrl-zoom-in,
 button.mapboxgl-ctrl-zoom-out { margin-top: 0; }
 
+#geolocator {
+  position: absolute;
+  left: calc(50vw - 112px);
+  top: calc(50vh + 70px);
+  transition: left 1s;
+  z-index: 15000;
+}
+#geolocator.right {
+  left: calc(50vw - 312px);
+  transition: left 1s;
+}
 .credits-container {
   display:block;
   position:absolute;
@@ -375,6 +386,10 @@ body pre[class*="language-"] {
   .sidebar { height: 78%; }
   .mapboxgl-ctrl-bottom-left {
     margin-bottom: 100px;
+  }
+  #geolocator { 
+    left: calc(50vw - 110px);
+    top: calc(50vh + 25px);
   }
 }
 /* special case: iPhone 5SE */

@@ -25,6 +25,7 @@
 
     <div id="page">
       <div id="app-container">
+        <div id="geolocator" class="geolocator"></div>
         <div id='before' class='map'>
           <div class="credits-container">
               <a href="https://findauut.com/mappak/" target="_blank"><i>by @findauut</i></a>
@@ -71,6 +72,7 @@ checkScreenSize();
 function toggleSidebar(id, statepos, scrollable) {
   const keyhole       = document.getElementById('keyhole');
   const keyhole_view  = document.getElementById('keyhole_view');
+  const geolocator    = document.getElementById('geolocator');
   const elem          = document.getElementById(id);
   
   //if already open
@@ -107,6 +109,7 @@ function toggleSidebar(id, statepos, scrollable) {
     beforeMap.easeTo({  padding: padding, duration: clientDelayMs });
     keyhole.classList.toggle('right');
     keyhole_view.classList.toggle('right');
+    geolocator.classList.toggle('right');
   
     if (padding[id] == 0) {
       
@@ -401,14 +404,17 @@ function mapt_load() {
     checkScreenSize();
 
     //if (isOnMobile) {
-      beforeMap.addControl(
+      //beforeMap.addControl(
+      const geolocator =
         new mapboxgl.GeolocateControl({
           positionOptions: { enableHighAccuracy: true },
           trackUserLocation: true,
           showUserHeading: true
-        }),
-        "bottom-left"
-      );
+        })
+        ;
+        document.getElementById('geolocator').appendChild(geolocator.onAdd(afterMap));
+        //, "bottom-left"
+      //);
     //}
     
 
