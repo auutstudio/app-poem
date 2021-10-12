@@ -5,14 +5,14 @@ path: home
 ---
 
 <div class="container mx-auto lg:h-screen flex flex-col justify-center items-center">
-  <h1>
-    <strong class="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
+  <h1 class="">
+    <strong class="{{ 'glow-white' if path == 'home' }} bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500 ">
       {{title}}
     </strong>
   </h1>
 
-  <p>
-    Poetry is hiding all around you
+  <p class="text-center">
+    A poem never leaves the place where it was written&nbsp;···
   </p>
 
   {% include "./_includes/partials/content.html" %}

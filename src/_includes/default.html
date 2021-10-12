@@ -16,18 +16,28 @@
       <link rel="stylesheet" type="text/css" href="/static/css/prism-tomorrow.css">
     {% endif %}
   </head>
-  <body>
+  
+  <body class="{{ 'home' if path == 'home' }}">
+    <div id="coverimg">
+    {% if path == "home" %}
+    <script>
+      var maxNum, FrameWidth = window.innerWidth;
+      if (FrameWidth >= 470) { maxNum = 3 } else { maxNum = 5 }
+      var randomizeClass = Math.floor(Math.random() * (maxNum) + 1);
+      document.getElementById('coverimg').classList.add('img'+randomizeClass.toString());
+    </script>
+    {% endif %}
+
     {% include "./partials/navbar.html" %}
 
     {{ content | safe }}
 
     {% include "./partials/footer.html" %}
-
+    </div>
     <script src="/static/js/alpine.js"></script>
-
+    
     {% if path == "home" %}
       <!-- Netlify Identity Widget -->
-      <!-- Needed only if you are using Netlify Identity feature -->
       <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     {% endif %}
 
