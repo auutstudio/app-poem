@@ -142,10 +142,63 @@ body.home #coverimg.img3 {
   linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
 }
 body.home #coverimg.img4 {
-  background-image: url('/static/img/coverimg_4.jpg');
+  background-image: url('/static/img/coverimg_4.jpg'), 
+  linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
 }
 body.home #coverimg.img5 {
-  background-image: url('/static/img/coverimg_5.jpg');
+  background-image: url('/static/img/coverimg_5.jpg'), 
+  linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
+}
+body.home #coverimg.img6 {
+  background-image: url('/static/img/coverimg_6.jpg'), 
+  linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
+}
+body.home #coverimg.img7 {
+  background-image: url('/static/img/coverimg_7.jpg'), 
+  linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
+}
+body.home #coverimg.img8 {
+  background-image: url('/static/img/coverimg_8.jpg'), 
+  linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
+}
+body.home #coverimg.img9 {
+  background-image: url('/static/img/coverimg_9.jpg'), 
+  linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
+}
+body.home #coverimg.img10 {
+  background-image: url('/static/img/coverimg_10.jpg'), 
+  linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
+}
+body.home #coverimg.img11 {
+  background-image: url('/static/img/coverimg_11.jpg'), 
+  linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
+}
+body.home #coverimg.img12 {
+  background-image: url('/static/img/coverimg_12.jpg');
+}
+body.home #coverimg.img13 {
+  background-image: url('/static/img/coverimg_13.jpg');
+}
+body.home #coverimg.img14 {
+  background-image: url('/static/img/coverimg_14.jpg');
+}
+body.home #coverimg.img15 {
+  background-image: url('/static/img/coverimg_15.jpg');
+}
+body.home #coverimg.img16 {
+  background-image: url('/static/img/coverimg_16.jpg');
+}
+body.home #coverimg.img17 {
+  background-image: url('/static/img/coverimg_17.jpg');
+}
+body.home #coverimg.img18 {
+  background-image: url('/static/img/coverimg_18.jpg');
+}
+body.home #coverimg.img19 {
+  background-image: url('/static/img/coverimg_19.jpg');
+}
+body.home #coverimg.img20 {
+  background-image: url('/static/img/coverimg_20.jpg');
 }
 
 ::-webkit-scrollbar {

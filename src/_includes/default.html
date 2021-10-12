@@ -22,7 +22,7 @@
     {% if path == "home" %}
     <script>
       var maxNum, FrameWidth = window.innerWidth;
-      if (FrameWidth >= 470) { maxNum = 3 } else { maxNum = 5 }
+      if (FrameWidth >= 470) { maxNum = 11 } else { maxNum = 20 }
       var randomizeClass = Math.floor(Math.random() * (maxNum) + 1);
       document.getElementById('coverimg').classList.add('img'+randomizeClass.toString());
     </script>
