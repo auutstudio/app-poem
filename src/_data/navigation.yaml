@@ -1,6 +1,8 @@
 ---
 items:
+  - text: Home
+    url: "/"
   - text: Map
-    url: "/map/"
+    url: "/map"
   - text: Poets
-    url: "/the-poets/"
+    url: "/the-poets"

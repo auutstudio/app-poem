@@ -15,15 +15,21 @@
     {% if prism == true %}
       <link rel="stylesheet" type="text/css" href="/static/css/prism-tomorrow.css">
     {% endif %}
+    {% if path == "home" %}
+    <style type="text/css">#nav_Home { display: none; }</style>
+    {% endif %}
+    {% if path == "the-poets" %}
+    <style type="text/css">#nav_Poets { display: none; }</style>
+    {% endif %}
   </head>
   
-  <body class="{{ 'home' if path == 'home' }}">
+  <body class="{{ 'home' if path == 'home' }} {{ path }}">
     <div id="coverimg">
     {% if path == "home" %}
     <script>
       var maxNum, FrameWidth = window.innerWidth;
-      if (FrameWidth >= 470) { maxNum = 11 } else { maxNum = 20 }
-      var randomizeClass = Math.floor(Math.random() * (maxNum) + 1);
+      if (FrameWidth >= 470) { maxNum = 11; } else { maxNum = 20; }
+      var randomizeClass = Math.floor(Math.random() * maxNum + 1);
       document.getElementById('coverimg').classList.add('img'+randomizeClass.toString());
     </script>
     {% endif %}
