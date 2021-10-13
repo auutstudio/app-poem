@@ -119,7 +119,7 @@ body * {
         -ms-user-select: none;
             user-select: none;
 }
-body.home #coverimg {
+#coverimg {
   background-size: cover;
   background-position: 30% 100%;
   background-repeat: no-repeat;
@@ -128,75 +128,75 @@ body.home #coverimg {
   padding-right: 4px;
   padding-bottom: 100px;
 }
-body.home #coverimg.img1 {
+#coverimg.img1 {
   background-image: url('/static/img/coverimg_1.jpg'), 
     linear-gradient(transparent 40%, rgba(255,255,255,0.67) 90%, rgba(255,255,255,0.33) 100%);
 }
-body.home #coverimg.img2 {
+#coverimg.img2 {
   background-image: url('/static/img/coverimg_2.jpg'), 
   linear-gradient(transparent 40%, rgba(255,255,255,0.67) 90%, rgba(255,255,255,0.33) 100%);
 }
-body.home #coverimg.img3 {
+#coverimg.img3 {
   background-image: url('/static/img/coverimg_3.jpg'), 
   linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
 }
-body.home #coverimg.img4 {
+#coverimg.img4 {
   background-image: url('/static/img/coverimg_4.jpg'), 
   linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
 }
-body.home #coverimg.img5 {
+#coverimg.img5 {
   background-image: url('/static/img/coverimg_5.jpg'), 
   linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
 }
-body.home #coverimg.img6 {
+#coverimg.img6 {
   background-image: url('/static/img/coverimg_6.jpg'), 
   linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
 }
-body.home #coverimg.img7 {
+#coverimg.img7 {
   background-image: url('/static/img/coverimg_7.jpg'), 
   linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
 }
-body.home #coverimg.img8 {
+#coverimg.img8 {
   background-image: url('/static/img/coverimg_8.jpg'), 
   linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
 }
-body.home #coverimg.img9 {
+#coverimg.img9 {
   background-image: url('/static/img/coverimg_9.jpg'), 
   linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
 }
-body.home #coverimg.img10 {
+#coverimg.img10 {
   background-image: url('/static/img/coverimg_10.jpg'), 
   linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
 }
-body.home #coverimg.img11 {
+#coverimg.img11 {
   background-image: url('/static/img/coverimg_11.jpg'), 
   linear-gradient(transparent 60%, rgba(255,255,255,0.33) 100%);
 }
-body.home #coverimg.img12 {
+#coverimg.img12 {
   background-image: url('/static/img/coverimg_12.jpg');
 }
-body.home #coverimg.img13 {
+#coverimg.img13 {
   background-image: url('/static/img/coverimg_13.jpg');
 }
-body.home #coverimg.img14 {
+#coverimg.img14 {
   background-image: url('/static/img/coverimg_14.jpg');
 }
-body.home #coverimg.img15 {
+#coverimg.img15 {
   background-image: url('/static/img/coverimg_15.jpg');
 }
-body.home #coverimg.img16 {
+#coverimg.img16 {
   background-image: url('/static/img/coverimg_16.jpg');
 }
-body.home #coverimg.img17 {
+#coverimg.img17 {
   background-image: url('/static/img/coverimg_17.jpg');
 }
-body.home #coverimg.img18 {
+#coverimg.img18 {
   background-image: url('/static/img/coverimg_18.jpg');
 }
-body.home #coverimg.img19 {
+#coverimg.img19 {
   background-image: url('/static/img/coverimg_19.jpg');
 }
-body.home #coverimg.img20 {
+#coverimg.img20 {
   background-image: url('/static/img/coverimg_20.jpg');
 }
 
@@ -510,7 +510,7 @@ body pre[class*="language-"] {
   .after-container.right { right: 400px; }
   .sidebar               { width: 400px; }
   .right.collapsed       { transform: translateX(395px); }
-  body.home #coverimg    { background-position: 50% 0%; }
+  #coverimg    { background-position: 50% 0%; }
 }
 
 /****** #tablet sizes  */
@@ -522,7 +522,7 @@ body pre[class*="language-"] {
 }
 
 @media screen and (min-width: 1024px) {
-  body.home #coverimg { padding-bottom: 0; }
+  #coverimg { padding-bottom: 0; }
 }
   
 
