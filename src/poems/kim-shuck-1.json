@@ -5,5 +5,8 @@
   "address": "Mountain Lake",
   "lat": 37.7873,
   "lng": -122.471,
-  "color": "pink-flag"
+  "color": "default",
+  "tags": [
+    "poems"
+  ]
 }
