@@ -12,5 +12,6 @@ poetbio: Kim Shuck was born in San Francisco, California, and is a member of the
   California College of Art in the Diversity department and serves as the poet
   laureate of San Francisco, California.
 psrc: https://api.poets.org/sites/default/files/styles/poem_a_day_portrait/public/images/biographies/kimshuck_newbioimage2019_photocreditdoug_salin_photography.png
-tags: poets
+tags:
+  - poets
 ---
