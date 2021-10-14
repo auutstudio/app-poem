@@ -10,5 +10,6 @@ poetbio: D.L. Lang is a contemporary American poet and spoken word artist. The
   numerous county fair ribbons, transformed into songs, used as liturgy for
   prayer, and to advocate for peace, justice, and a better world.
 psrc: /static/img/dl-lang.jpg
-tags: poets
+tags:
+  - poets
 ---
